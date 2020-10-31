@@ -1,5 +1,6 @@
 package main.java.hr.java.covidportal.main;
 
+import main.java.hr.java.covidportal.iznimke.DuplikatKontaktiraneOsobe;
 import main.java.hr.java.covidportal.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -184,6 +185,7 @@ public class Glavna {
             // Unos Broja Odabranih Simptoma i validacija unosa
 
             do {
+
                 try {
                     System.out.printf("Unesite broj simptoma: ");
 
@@ -226,6 +228,7 @@ public class Glavna {
                 // Biranje Postojeceg Simptoma i validacija unosa
 
                 do {
+
                     System.out.printf("Odaberite %d. simptom:%n", j + 1);
 
                     // Ispis Postojecih Simptoma
@@ -311,7 +314,7 @@ public class Glavna {
     }
 
     private static void unosOsoba(Scanner input, Zupanija[] zupanije, Bolest[] bolesti, Osoba[] osobe) {
-        boolean duplikatiOsoba = false, ispravanUnos = true;
+        boolean ispravanUnos = true;
         int odabranaZupanija = 0;
         int odabranaBolest = 0;
         int odabranaKontaktiranaOsoba = 0;
@@ -576,31 +579,10 @@ public class Glavna {
 
                                 } else {
 
-                                    ispravanUnos = true;
+                                    // Provjera Duplikata Kontaktiranih Osoba
 
-                                    // (Provjera duplikata) Provjera postojanosti Odabrane Kontaktirane Osobe u prethodno Odabranim Kontaktiranim Osobama
+                                    ispravanUnos = provjeraDuplikataKontaktiranihOsoba(odabranaKontaktiranaOsoba, odabraneKontaktiraneOsobe);
 
-                                    for (int k = 0; k < odabraneKontaktiraneOsobe.length; ++k) {
-
-                                        if (odabraneKontaktiraneOsobe[k] == odabranaKontaktiranaOsoba) {
-
-                                            System.out.println("Osoba je vec odabrana, molimo ponovno unesite!");
-
-                                            duplikatiOsoba = true;
-
-                                            ispravanUnos = false;
-
-                                        }
-                                    }
-
-                                    if (duplikatiOsoba) {
-
-                                        duplikatiOsoba = false;
-
-                                        logger.error("Prilikom unosa odabira kontaktirane osobe, unesena je prethodno odabrana osoba (duplikat): "
-                                                + Integer.toString(odabranaKontaktiranaOsoba));
-
-                                    }
 
                                     if (ispravanUnos) {
 
@@ -648,6 +630,36 @@ public class Glavna {
                         .zarazenBolescu(zarazenBolescu).kontaktiraneOsobe(kontaktiraneOsobe).build();
             }
         }
+    }
+
+    private static boolean provjeraDuplikataKontaktiranihOsoba(int odabranaKontaktiranaOsoba, int[] odabraneKontaktiraneOsobe) {
+        boolean ispravanUnos;
+        ispravanUnos = true;
+
+        // (Provjera duplikata) Provjera postojanosti Odabrane Kontaktirane Osobe u prethodno Odabranim Kontaktiranim Osobama
+
+        try {
+
+            for (int k = 0; k < odabraneKontaktiraneOsobe.length; ++k) {
+
+                if (odabraneKontaktiraneOsobe[k] == odabranaKontaktiranaOsoba) {
+
+                    System.out.println("Osoba je vec odabrana, molimo ponovno unesite!");
+
+                    ispravanUnos = false;
+
+                    throw new DuplikatKontaktiraneOsobe("Prilikom unosa odabira kontaktirane osobe, unesena je prethodno odabrana osoba (duplikat): "
+                            + Integer.toString(odabranaKontaktiranaOsoba));
+
+                }
+            }
+
+        } catch (DuplikatKontaktiraneOsobe ex) {
+
+            logger.error(ex.getMessage(), ex);
+
+        }
+        return ispravanUnos;
     }
 }
 
