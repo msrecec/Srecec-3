@@ -1,14 +1,12 @@
 package main.java.hr.java.covidportal.main;
 
+import main.java.hr.java.covidportal.iznimke.BolestIstihSimptoma;
 import main.java.hr.java.covidportal.iznimke.DuplikatKontaktiraneOsobe;
 import main.java.hr.java.covidportal.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.InputMismatchException;
-import java.util.Objects;
-import java.util.Scanner;
+import java.util.*;
 
 
 public class Glavna {
@@ -55,12 +53,14 @@ public class Glavna {
 
         System.out.printf("Unesite podatke o %d zupanije:%n", zupanije.length);
         for (int i = 0; i < zupanije.length; ++i) {
+
+            System.out.printf("Unesite naziv zupanije: ");
+
+            nazivZupanije = input.nextLine();
+
             do {
+
                 try {
-
-                    System.out.printf("Unesite naziv zupanije: ");
-
-                    nazivZupanije = input.nextLine();
 
                     System.out.printf("Unesite broj stanovnika: ");
 
@@ -118,7 +118,11 @@ public class Glavna {
                 // if(!vrijednostSimptoma.in([RIJETKO, SREDNJE, CESTO])) Provjera pojave vrijednosti simptoma analogno IN Operatoru u SQL
 
                 if (!Arrays.asList(Simptom.RIJETKO, Simptom.SREDNJE, Simptom.CESTO).contains(vrijednostSimptoma)) {
+
                     System.out.println("Pogrešan unos simptoma !");
+
+                    logger.error("Prilikom unosa pojave vrijednosti simptoma je broj izvan raspona dopuštenih vrijednosti.");
+
                 }
 
             } while (!Arrays.asList(Simptom.RIJETKO, Simptom.SREDNJE, Simptom.CESTO).contains(vrijednostSimptoma));
@@ -143,7 +147,9 @@ public class Glavna {
             // Odabir unosa bolesti ili virusa i validacija unosa
 
             do {
+
                 try {
+
                     System.out.printf("Unosite li bolest ili virus ?%n1)BOLEST%n2)VIRUS%n");
 
                     bolestIliVirus = input.nextInt();
@@ -166,7 +172,9 @@ public class Glavna {
                         ispravanUnos = true;
 
                     }
+
                 } catch (InputMismatchException ex) {
+
                     logger.error("Prilikom unosa bolesti ili virusa je došlo do pogreške. Unesen je String koji se ne može parsirati!", ex);
 
                     System.out.println("Došlo je do pogreške kod unosa brojčane vrijednosti! Molimo ponovite unos.");
@@ -178,130 +186,191 @@ public class Glavna {
 
             } while (!ispravanUnos);
 
-            System.out.printf("Unesite naziv bolesti ili virusa: ");
-
-            nazivBolestiIliVirusa = input.nextLine();
-
-            // Unos Broja Odabranih Simptoma i validacija unosa
-
             do {
 
-                try {
-                    System.out.printf("Unesite broj simptoma: ");
+                System.out.printf("Unesite naziv bolesti ili virusa: ");
 
-                    brojOdabranihSimptoma = input.nextInt();
+                nazivBolestiIliVirusa = input.nextLine();
 
-                    input.nextLine();
-
-                    if (brojOdabranihSimptoma > simptomi.length || brojOdabranihSimptoma < 1) {
-
-                        System.out.println("Pogresan unos broja simptoma ! Unesen je broj izvan raspona ukupnog broja mogućih simptoma.");
-
-                        logger.error("Prilikom unosa broja simptoma unesen je broj izvan raspona ukupnog broja mogućih simptoma.");
-
-                        ispravanUnos = false;
-                    } else {
-
-                        logger.info("Uneseni broj simptoma: " + Integer.toString(brojOdabranihSimptoma));
-
-                        ispravanUnos = true;
-
-                        odabraniSimptomi = new int[brojOdabranihSimptoma];
-                    }
-
-                } catch (InputMismatchException ex) {
-                    logger.error("Prilikom unosa broja simptoma je došlo do pogreške. Unesen je String koji se ne može parsirati!", ex);
-
-                    System.out.println("Došlo je do pogreške kod unosa brojčane vrijednosti! Molimo ponovite unos.");
-
-                    input.nextLine();
-
-                    ispravanUnos = false;
-                }
-
-            } while (!ispravanUnos);
-
-            // Unos odabranih simptoma i validacija
-
-            for (int j = 0; j < brojOdabranihSimptoma; ++j) {
-
-                // Biranje Postojeceg Simptoma i validacija unosa
+                // Unos Broja Odabranih Simptoma i validacija unosa
 
                 do {
 
-                    System.out.printf("Odaberite %d. simptom:%n", j + 1);
-
-                    // Ispis Postojecih Simptoma
-
-                    for (int k = 0; k < simptomi.length; ++k) {
-                        System.out.printf("%d. %s %s%n", k + 1, simptomi[k].getNaziv(), simptomi[k].getVrijednost());
-                    }
-
                     try {
-                        System.out.print("Odabir: ");
+                        System.out.printf("Unesite broj simptoma: ");
 
-                        odabraniSimptom = input.nextInt();
+                        brojOdabranihSimptoma = input.nextInt();
 
                         input.nextLine();
 
-                        if (odabraniSimptom > simptomi.length || odabraniSimptom < 1) {
+                        if (brojOdabranihSimptoma > simptomi.length || brojOdabranihSimptoma < 1) {
 
-                            System.out.println("Neispravan unos, molimo pokusajte ponovno!");
+                            System.out.println("Pogresan unos broja simptoma ! Unesen je broj izvan raspona ukupnog broja mogućih simptoma.");
 
-                            logger.error("Prilikom biranja simptoma unesen je broj izvan raspona ukupnog broja postojećih simptoma.");
+                            logger.error("Prilikom unosa broja simptoma unesen je broj izvan raspona ukupnog broja mogućih simptoma.");
 
                             ispravanUnos = false;
-
                         } else {
+
+                            logger.info("Uneseni broj simptoma: " + Integer.toString(brojOdabranihSimptoma));
 
                             ispravanUnos = true;
 
-                            // Provjera postojanosti Odabranog Postojeceg Simptoma u prethodno Odabranim Simptomima
-
-                            for (int k = 0; k < odabraniSimptomi.length; ++k) {
-                                if (odabraniSimptomi[k] == odabraniSimptom) {
-                                    System.out.println("Odabrani Simptom je vec unesen! Molimo odaberite ponovno.");
-
-                                    logger.error("Odabran je Simptom koji je već unesen: " + Integer.toString(odabraniSimptom));
-
-                                    ispravanUnos = false;
-
-                                    break;
-                                }
-                            }
-
-                            if (ispravanUnos) {
-
-                                logger.info("Odabran je (broj) simptom is postojećih simptoma: " + Integer.toString(odabraniSimptom));
-
-                                odabraniSimptomi[j] = odabraniSimptom;
-                            }
+                            odabraniSimptomi = new int[brojOdabranihSimptoma];
                         }
-                    } catch (InputMismatchException ex) {
 
-                        logger.error("Prilikom unosa brojčane vrijednosti kod biranja postojećih simptoma je došlo do pogreške. Unesen je String koji se ne može parsirati!", ex);
+                    } catch (InputMismatchException ex) {
+                        logger.error("Prilikom unosa broja simptoma je došlo do pogreške. Unesen je String koji se ne može parsirati!", ex);
 
                         System.out.println("Došlo je do pogreške kod unosa brojčane vrijednosti! Molimo ponovite unos.");
 
                         input.nextLine();
 
                         ispravanUnos = false;
-
                     }
 
                 } while (!ispravanUnos);
-            }
 
-            // Kopiranje Postojecih Simptoma u novo polje Kopiranih Simptoma
+                // Unos odabranih simptoma i validacija
 
-            kopiraniSimptomi = new Simptom[brojOdabranihSimptoma];
-            for (int j = 0; j < brojOdabranihSimptoma; ++j) {
-                kopiraniSimptomi[j] = new Simptom(simptomi[odabraniSimptomi[j] - 1].getNaziv(), simptomi[odabraniSimptomi[j] - 1].getVrijednost());
-            }
+                for (int j = 0; j < brojOdabranihSimptoma; ++j) {
 
-            // Provjera da li je unos bolest ili virus
+                    // Biranje Postojeceg Simptoma i validacija unosa
+
+                    do {
+
+                        System.out.printf("Odaberite %d. simptom:%n", j + 1);
+
+                        // Ispis Postojecih Simptoma
+
+                        for (int k = 0; k < simptomi.length; ++k) {
+                            System.out.printf("%d. %s %s%n", k + 1, simptomi[k].getNaziv(), simptomi[k].getVrijednost());
+                        }
+
+                        try {
+                            System.out.print("Odabir: ");
+
+                            odabraniSimptom = input.nextInt();
+
+                            input.nextLine();
+
+                            if (odabraniSimptom > simptomi.length || odabraniSimptom < 1) {
+
+                                System.out.println("Neispravan unos, molimo pokusajte ponovno!");
+
+                                logger.error("Prilikom biranja simptoma unesen je broj izvan raspona ukupnog broja postojećih simptoma.");
+
+                                ispravanUnos = false;
+
+                            } else {
+
+                                ispravanUnos = true;
+
+                                // Provjera postojanosti Odabranog Postojeceg Simptoma u prethodno Odabranim Simptomima
+
+                                for (int k = 0; k < odabraniSimptomi.length; ++k) {
+
+                                    if (odabraniSimptomi[k] == odabraniSimptom) {
+
+                                        System.out.println("Odabrani Simptom je vec unesen! Molimo odaberite ponovno.");
+
+                                        logger.error("Odabran je Simptom koji je već unesen: " + Integer.toString(odabraniSimptom));
+
+                                        ispravanUnos = false;
+
+                                        break;
+                                    }
+                                }
+
+                                if (ispravanUnos) {
+
+                                    logger.info("Odabran je (broj) simptom is postojećih simptoma: " + Integer.toString(odabraniSimptom));
+
+                                    odabraniSimptomi[j] = odabraniSimptom;
+                                }
+                            }
+                        } catch (InputMismatchException ex) {
+
+                            logger.error("Prilikom unosa brojčane vrijednosti kod biranja postojećih simptoma je došlo do pogreške. Unesen je String koji se ne može parsirati!", ex);
+
+                            System.out.println("Došlo je do pogreške kod unosa brojčane vrijednosti! Molimo ponovite unos.");
+
+                            input.nextLine();
+
+                            ispravanUnos = false;
+
+                        }
+
+                    } while (!ispravanUnos);
+                }
+
+                // Kopiranje Postojecih Simptoma u novo polje Kopiranih Simptoma
+
+                kopiraniSimptomi = new Simptom[brojOdabranihSimptoma];
+
+                for (int j = 0; j < brojOdabranihSimptoma; ++j) {
+                    kopiraniSimptomi[j] = new Simptom(simptomi[odabraniSimptomi[j] - 1].getNaziv(), simptomi[odabraniSimptomi[j] - 1].getVrijednost());
+                }
+
+                // Provjera duplikata unosa Simptoma
+
+                if (i > 0) {
+
+                    try {
+
+                        provjeraBolestiIstihSimptoma(bolesti, kopiraniSimptomi, i);
+
+                        ispravanUnos = true;
+
+                    } catch (BolestIstihSimptoma ex) {
+
+                        logger.error(ex.getMessage(), ex);
+
+                        ispravanUnos = false;
+
+                    }
+
+                }
+
+            } while (!ispravanUnos);
+
+            // Provjera da li je unos bolest ili virus i unos u polje bolesti
 
             bolesti[i] = bolestIliVirus == 1 ? new Bolest(nazivBolestiIliVirusa, kopiraniSimptomi) : new Virus(nazivBolestiIliVirusa, kopiraniSimptomi);
+        }
+    }
+
+    private static void provjeraBolestiIstihSimptoma(Bolest[] bolesti, Simptom[] kopiraniSimptomi, int brojTrenutnoUnesenihBolesti) throws BolestIstihSimptoma {
+        boolean flag = true;
+
+        for (int i = 0; i < brojTrenutnoUnesenihBolesti; ++i) {
+
+            Arrays.sort(bolesti[i].getSimptomi(), new Comparator<Simptom>() {
+                public int compare(Simptom s1, Simptom s2) {
+                    return s1.getNaziv().compareToIgnoreCase(s2.getNaziv());
+                }
+            });
+
+            if (bolesti[i].getSimptomi().length == kopiraniSimptomi.length) {
+
+                flag = true;
+
+                for (int j = 0; j < kopiraniSimptomi.length; ++j) {
+                    if (!bolesti[i].getSimptomi()[j].equals(kopiraniSimptomi[j])) {
+                        flag = false;
+                    }
+                }
+
+                if (flag) {
+
+                    System.out.println("Unesena bolest ne smije imati simptome jednake prethodno unesenim bolestima!");
+
+                    System.out.println("Molimo Vas da ponovno unesete bolest.");
+
+                    throw new BolestIstihSimptoma("Uneseni simptomi su duplikati iz prethodno unesenih bolesti!");
+
+                }
+            }
         }
     }
 

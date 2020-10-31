@@ -1,8 +1,9 @@
 package main.java.hr.java.covidportal.iznimke;
 
 public class DuplikatKontaktiraneOsobe extends Exception {
+
     public DuplikatKontaktiraneOsobe() {
-        super("Dogodila se pogreška u radu programa!");
+        super("Unesena osoba je duplikat!");
     }
 
     public DuplikatKontaktiraneOsobe(String message) {
