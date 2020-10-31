@@ -43,7 +43,6 @@ public class Glavna {
 
         ispisOsoba(osobe);
 
-
     }
 
     private static void unosZupanija(Scanner input, Zupanija[] zupanije) {
