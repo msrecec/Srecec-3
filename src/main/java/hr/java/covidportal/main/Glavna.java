@@ -8,12 +8,28 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+/**
+ * Služi za unos Županija, Simptoma, Bolesti, Osoba i služi za ispis Osoba
+ *
+ * @author Mislav Srecec
+ * @version 3.0
+ * @see <a href="https://grader.tvz.hr/">Odrediste svih verzija</a>
+ */
 
 public class Glavna {
 
     private static final Logger logger = LoggerFactory.getLogger(Glavna.class);
 
     public static final int BROJ_ZUPANIJA = 3, BROJ_SIMPTOMA = BROJ_ZUPANIJA, BROJ_BOLESTI = 2, BROJ_VIRUSA = 2, BROJ_OSOBA = BROJ_ZUPANIJA;
+
+    /**
+     * Služi za pokretanje programa koji će od korisnika tražiti unos Županija <code>Zupanija[] zupanije</code>,
+     * Simptoma <code>Simptom[] simptomi</code>, Bolesti <code>Bolest[] bolesti</code>
+     * preko metoda <code>unosZupanija(input, zupanije);</code> <code>unosSimptoma(input, simptomi);</code> i <code>unosBolesti(input, simptomi, bolesti);</code>
+     * na osnovi kojih će tražiti unos Osoba <code>Osoba[] osobe</code> preko metode <code>unosOsoba(input, zupanije, bolesti, osobe);</code>
+     *
+     * @param args argumenti komandne linije (ne koriste se)
+     */
 
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
@@ -43,27 +59,38 @@ public class Glavna {
 
         ispisOsoba(osobe);
 
-        // Testiranje sortiranih bolesti i simptoma
-
-        for (Bolest bolest : bolesti) {
-            for (Simptom simptom : bolest.getSimptomi()) {
-                System.out.println(simptom.getNaziv() + " " + simptom.getVrijednost());
-            }
-        }
-
     }
+
+    /**
+     * Unosi županije u polje županija <code>Zupanija[] zupanije</code>
+     * <p>
+     * Unosi nazive županija <code>String nazivZupanije</code> i broj stanovnika <code>int brojStanovnika</code>
+     * iz korisnickog unosa <code>Scanner input</code>.
+     * <p>
+     * Ao je uneseni broj stanovnika <code>int brojStanovnika</code> manji od 0 , u logger upisuje ispisuje gresku
+     * <code>logger.error("Prilikom unosa broja stanovnika, unesen je negativan broj")</code>
+     *
+     * @param input    korisnicki unos
+     * @param zupanije referenca na polje županija
+     */
 
     private static void unosZupanija(Scanner input, Zupanija[] zupanije) {
         String nazivZupanije;
         int brojStanovnika;
         boolean ispravanUnos = true;
 
+        // Unos županija
+
         System.out.printf("Unesite podatke o %d zupanije:%n", zupanije.length);
         for (int i = 0; i < zupanije.length; ++i) {
+
+            // Unos naziva županija
 
             System.out.printf("Unesite naziv zupanije: ");
 
             nazivZupanije = input.nextLine();
+
+            // Unos i validacija unosa broja stanovnika
 
             do {
 
@@ -108,17 +135,39 @@ public class Glavna {
         }
     }
 
+    /**
+     * Unosi simptome u polje simptoma <code>Simptom[] simptomi</code>
+     * <p>
+     * Unosi nazive simptoma <code>String nazivSimptoma</code> i vrijednosti simptoma <code>String vrijednostSimptoma</code>
+     * (RIJETKO, SREDNJE, CESTO) iz korisnickog unosa <code>Scanner input</code> i sprema ih u polje Simptoma <code>Simptom[] simptomi</code>
+     * <p>
+     * Ako je unesena vrijednost simptoma izvan dozvoljenog raspona (RIJETKO, SREDNJE, ČESTO), u log upisuje gresku
+     * <code>logger.error("Prilikom unosa pojave vrijednosti simptoma je broj izvan raspona dopustenih vrijednosti.")</code>
+     *
+     * @param input    korisnički unos
+     * @param simptomi referenca na polje simptoma
+     */
+
     private static void unosSimptoma(Scanner input, Simptom[] simptomi) {
         String nazivSimptoma;
         String vrijednostSimptoma;
 
+        // Unos simptoma
+
         System.out.printf("Unesite podatke o %d simptoma:%n", simptomi.length);
 
         for (int i = 0; i < simptomi.length; ++i) {
+
+            // Unos naziva simptoma
+
             System.out.printf("Unesite naziv simptoma: ");
+
             nazivSimptoma = input.nextLine();
 
+            // Unos i validacija unosa vrijednosti simptoma
+
             do {
+
                 System.out.printf("Unesite vrijednost simptoma(%s, %s, %s): ", Simptom.RIJETKO, Simptom.SREDNJE, Simptom.CESTO);
                 vrijednostSimptoma = input.nextLine();
 
@@ -138,6 +187,35 @@ public class Glavna {
 
         }
     }
+
+    /**
+     * Unosi bolesti u polje bolesti <code>Bolest[] bolesti</code>
+     * <p>
+     * Unosi nazive bolesti/virusa <code>String nazivBolestiIliVirusa</code> i simptome <code>Simptom[] simptomi</code>
+     * koje sprema u polje bolesti <code>Bolest[] bolesti</code>
+     * Ako je unesena vrijednost bolest/virus <code>int bolestIliVirus</code> izvan dozvoljenog raspona (1. Bolest 2. Virus) U log upisuje gresku
+     * <code>logger.error("Prilikom unosa Bolesti ili Virusa unesen je broj izvan raspona dopustenih brojeva.");</code>
+     * <p>
+     * Ako unesena vrijednost bolesti/virusa <code>int bolestIliVirus</code> nije cijeli broj <code>int</code> obrađuje gresku i upisuje u log
+     * <code>logger.error("Prilikom unosa bolesti ili virusa je doslo do pogreske. Unesen je String koji se ne može parsirati!", ex);</code>
+     * <p>
+     * Ako je unesena vrijednost bolest/virus <code>int bolestIliVirus</code> izvan dozvoljenog raspona (1. Bolest 2. Virus) u log upisuje gresku
+     * <code>System.out.println("Pogresan unos broja simptoma ! Unesen je broj izvan raspona ukupnog broja mogućih simptoma.");</code>
+     * <p>
+     * Ako unesena vrijednost broja simptoma <code>int brojOdabranihSimptoma</code> nije cijeli broj <code>int</code> obrađuje gresku i upisuje u log
+     * <code>logger.error("Prilikom unosa broja simptoma je doslo do pogreske. Unesen je String koji se ne može parsirati!", ex);</code>
+     * <p>
+     * Ako je unesena vrijednost broja simptoma <code>int brojOdabranihSimptoma</code> izvan dozvoljenog raspona (1, <code>simptomi.length</code>) u log upisuje gresku
+     * <code>System.out.println("Pogresan unos broja simptoma ! Unesen je broj izvan raspona ukupnog broja mogućih simptoma.");</code>
+     * <p>
+     * Ako su uneseni simptomi <code>Simptom[] kopiraniSimptomi</code> već prisutni u prethodno navedenim bolestima ili virusima
+     * <code>Bolest[] bolesti</code> preko provjere u metodi <code>provjeraBolestiIstihSimptoma(bolesti, kopiraniSimptomi, i);</code> baca gresku koju
+     * upisuje u log <code>logger.error(ex.getMessage(), ex);</code>
+     *
+     * @param input    korisnički unos
+     * @param simptomi referenca na polje simptoma
+     * @param bolesti  referenca na polje bolesti
+     */
 
     private static void unosBolesti(Scanner input, Simptom[] simptomi, Bolest[] bolesti) {
         String nazivBolestiIliVirusa;
@@ -217,6 +295,7 @@ public class Glavna {
                             logger.error("Prilikom unosa broja simptoma unesen je broj izvan raspona ukupnog broja mogućih simptoma.");
 
                             ispravanUnos = false;
+
                         } else {
 
                             logger.info("Uneseni broj simptoma: " + Integer.toString(brojOdabranihSimptoma));
@@ -227,6 +306,7 @@ public class Glavna {
                         }
 
                     } catch (InputMismatchException ex) {
+
                         logger.error("Prilikom unosa broja simptoma je došlo do pogreške. Unesen je String koji se ne može parsirati!", ex);
 
                         System.out.println("Došlo je do pogreške kod unosa brojčane vrijednosti! Molimo ponovite unos.");
@@ -347,6 +427,20 @@ public class Glavna {
         }
     }
 
+    /**
+     * Provjerava postojanost unesenih simptoma <code>Simptom[] kopiraniSimptomi</code> u polju simptoma <code>bolesti[i].getSimptomi()</code> prethodno unesenih bolesti
+     * <code>Bolest[] bolesti</code>
+     * <p>
+     * Ako su trenutno uneseni simptomi <code>Simptom[] kopiraniSimptomi</code> prisutni u simptomima polja prethodno unesenih bolesti <code>Bolest[] bolesti</code>
+     * baca grešku <code>throw new BolestIstihSimptoma("Uneseni simptomi su duplikati iz prethodno unesenih bolesti!");</code>
+     *
+     * @param bolesti                     referenca na polje bolesti koje su trenutno unesene
+     * @param kopiraniSimptomi            referenca na polje simptoma za bolest koja se trenutno unosi
+     * @param brojTrenutnoUnesenihBolesti broj trenutno unesenih bolesti
+     * @throws BolestIstihSimptoma iznimka koja se baca u slučaju kad su trenutno uneseni simptomi <code>Simptom[] kopiraniSimptomi</code>
+     *                             prisutni u prethodno unesenim bolestima <code>Bolest[] bolesti</code>
+     */
+
     private static void provjeraBolestiIstihSimptoma(Bolest[] bolesti, Simptom[] kopiraniSimptomi, int brojTrenutnoUnesenihBolesti) throws BolestIstihSimptoma {
         boolean flag = true;
 
@@ -387,6 +481,12 @@ public class Glavna {
         }
     }
 
+    /**
+     * Ispisuje osobe <code>Osoba[] osobe</code> koje su unesene u program
+     *
+     * @param osobe osobe koje su unesene u program
+     */
+
     private static void ispisOsoba(Osoba[] osobe) {
         System.out.println("Popis osoba:");
 
@@ -394,6 +494,47 @@ public class Glavna {
             System.out.print(osoba.toString());
         }
     }
+
+    /**
+     * Unosi osobe u polje osoba <code>Osoba[] osobe</code>
+     * <p>
+     * Unosi ime osobe <code>String ime</code> i prezime osobe <code>String prezime</code> i unosi starost osobe <code>Integer starost</code>
+     * <p>
+     * Ako je starost osobe <code>Integer starost</code> manja od 0 u log upisuje gresku
+     * <code>logger.error("Prilikom unosa starosti osobe, unesen je negativan broj: " + Integer.toString(starost));</code>
+     * <p>
+     * Ako u starost osobe <code>Integer starost</code> nije unesena brojčana vrijednost obrađuje iznimku <code>InputMismatchException ex</code>
+     * i upisuje gresku u log <code>logger.error("Prilikom unosa brojčane vrijednosti kod starosti osobe je doslo do pogreske. Unesen je String koji se ne može parsirati!", ex);</code>
+     * <p>
+     * Unosi županiju osobe <code>Zupanija zupanija</code> i ako je odabrana županija <code>int odabranaZupanija</code> izvan raspona dostupnih županija <code>Zupanija[] zupanije</code>
+     * u log upisuje gresku <code>logger.error("Prilikom unosa županije osobe, unesen je broj izvan prethodno navedenog raspona: " + Integer.toString(odabranaZupanija));</code>
+     * <p>
+     * Ako odabrana županija <code>int odabranaZupanija</code> nije cijeli broj <code>int</code> obrađuje iznimku <code>InputMismatchException ex</code>
+     * i upisuje gresku u log <code>logger.error("Prilikom unosa brojčane vrijednosti kod biranja županije osobe je doslo do pogreske. Unesen je String koji se ne može parsirati!", ex);</code>
+     * <p>
+     * Unosi odabir bolest ili virus osobe <code>int odabranaBolest</code> i ako je unesena vrijednost izvan raspona dostupnih bolesti
+     * u log upisuje gresku <code>logger.error("Prilikom unosa bolesti/virusa osobe, unesen je broj izvan prethodno navedenog raspona: " + Integer.toString(odabranaBolest));</code>
+     * <p>
+     * Ako odabrana bolest ili virus <code>int odabranaBolest</code> nije cijeli broj <code>int</code> obrađuje iznimku <code>InputMismatchException ex</code>
+     * i upisuje gresku u log <code>logger.error("Prilikom unosa brojčane vrijednosti kod biranja bolesti/virusa osobe je doslo do pogreske. Unesen je String koji se ne može parsirati!", ex);</code>
+     * <p>
+     * Ako je broj trenutno unesenih osoba veći ili jednak 1 <code>if(i > 0)</code> unosi broj kontaktiranih osoba <code>int brojKontaktiranihOsoba</code> i sprema ih u polje
+     * <code>int[] odabraneKontaktiraneOsobe</code>
+     * <p>
+     * Unosi odabir kontaktiranih osoba i upisuje trenutno kontaktiranu osobu u <code>int odabranaKontaktiranaOsoba</code> i ako je unesena vrijednost izvan raspona dostupnih prethodno unesenih
+     * osoba <code>if (brojKontaktiranihOsoba > i || brojKontaktiranihOsoba < 0)</code> u log upisuje gresku
+     * <code> logger.error("Prilikom unosa broja kontaktiranih osoba, unesen je broj izvan raspona unesenog broja osoba: " + Integer.toString(brojKontaktiranihOsoba));</code>
+     * <p>
+     * Ako uneseni broj kontaktirane osobe <code>int odabranaKontaktiranaOsoba</code> nije cijeli broj <code>int</code> obrađuje iznimku <code>InputMismatchException ex</code>
+     * i upisuje gresku u log <code>logger.error("Prilikom unosa brojčane vrijednosti kod unosa odabrane kontaktirane osobe je doslo do pogreske. Unesen je String koji se ne može parsirati!", ex);</code>
+     * Provjerava unos duplikata <code>provjeraDuplikataKontaktiranihOsoba(odabranaKontaktiranaOsoba, odabraneKontaktiraneOsobe);</code> i obrađuje iznimku <code>DuplikatKontaktiraneOsobe ex</code>
+     * i upisuje gresku u log <code> logger.error(ex.getMessage(), ex);</code>
+     *
+     * @param input    korisnički unos
+     * @param zupanije referenca na polje unesenih županija
+     * @param bolesti  referenca na polje unesenih bolesti
+     * @param osobe    referenca na polje unesenih osoba
+     */
 
     private static void unosOsoba(Scanner input, Zupanija[] zupanije, Bolest[] bolesti, Osoba[] osobe) {
         boolean ispravanUnos = true;
@@ -593,7 +734,7 @@ public class Glavna {
 
                         if (brojKontaktiranihOsoba > i || brojKontaktiranihOsoba < 0) {
 
-                            System.out.println("Greska u unosu broja kontaktiranih osoba");
+                            System.out.println("Greska u unosu broja kontaktiranih osoba. Broj trenutno unesenih osoba je: " + Integer.toString(i));
 
                             logger.error("Prilikom unosa broja kontaktiranih osoba, unesen je broj izvan raspona unesenog broja osoba: "
                                     + Integer.toString(brojKontaktiranihOsoba));
@@ -674,9 +815,9 @@ public class Glavna {
 
                                 }
 
-                            } catch (InputMismatchException ex) {
+                            } catch (InputMismatchException e) {
 
-                                logger.error("Prilikom unosa brojčane vrijednosti kod unosa odabrane kontaktirane osobe je došlo do pogreške. Unesen je String koji se ne može parsirati!", ex);
+                                logger.error("Prilikom unosa brojčane vrijednosti kod unosa odabrane kontaktirane osobe je došlo do pogreške. Unesen je String koji se ne može parsirati!", e);
 
                                 System.out.println("Došlo je do pogreške kod unosa brojčane vrijednosti! Molimo ponovite unos.");
 
@@ -717,6 +858,17 @@ public class Glavna {
             }
         }
     }
+
+    /**
+     * Provjerava postojanost odabrane kontaktirane osobe <code>int odabranaKontaktiranaOsoba</code> u polju
+     * <code>int[] odabraneKontaktiraneOsobe</code> i provjerava duplikate
+     * ako postoji duplikat baca iznimku <code>throw new DuplikatKontaktiraneOsobe("Prilikom unosa odabira kontaktirane osobe, unesena je prethodno odabrana osoba (duplikat): "
+     * + Integer.toString(odabranaKontaktiranaOsoba));</code>
+     *
+     * @param odabranaKontaktiranaOsoba unesena odabrana kontaktirana osoba
+     * @param odabraneKontaktiraneOsobe polje prethodno odabranih kontaktiranih osoba
+     * @throws DuplikatKontaktiraneOsobe iznimka koja se baca u slučaju kada su uneseni duplikati
+     */
 
     private static void provjeraDuplikataKontaktiranihOsoba(int odabranaKontaktiranaOsoba, int[] odabraneKontaktiraneOsobe) throws DuplikatKontaktiraneOsobe {
 
