@@ -43,6 +43,14 @@ public class Glavna {
 
         ispisOsoba(osobe);
 
+        // Testiranje sortiranih bolesti i simptoma
+
+        for (Bolest bolest : bolesti) {
+            for (Simptom simptom : bolest.getSimptomi()) {
+                System.out.println(simptom.getNaziv() + " " + simptom.getVrijednost());
+            }
+        }
+
     }
 
     private static void unosZupanija(Scanner input, Zupanija[] zupanije) {
@@ -341,6 +349,12 @@ public class Glavna {
 
     private static void provjeraBolestiIstihSimptoma(Bolest[] bolesti, Simptom[] kopiraniSimptomi, int brojTrenutnoUnesenihBolesti) throws BolestIstihSimptoma {
         boolean flag = true;
+
+        Arrays.sort(kopiraniSimptomi, new Comparator<Simptom>() {
+            public int compare(Simptom s1, Simptom s2) {
+                return s1.getNaziv().compareToIgnoreCase(s2.getNaziv());
+            }
+        });
 
         for (int i = 0; i < brojTrenutnoUnesenihBolesti; ++i) {
 
@@ -647,18 +661,16 @@ public class Glavna {
 
                                 } else {
 
-                                    // Provjera Duplikata Kontaktiranih Osoba
+                                    // Provjera Duplikata Kontaktiranih Osoba i obrada greške
 
-                                    ispravanUnos = provjeraDuplikataKontaktiranihOsoba(odabranaKontaktiranaOsoba, odabraneKontaktiraneOsobe);
+                                    provjeraDuplikataKontaktiranihOsoba(odabranaKontaktiranaOsoba, odabraneKontaktiraneOsobe);
 
+                                    ispravanUnos = true;
 
-                                    if (ispravanUnos) {
+                                    logger.info("Unesen je odabir kontaktirane osobe: " + Integer.toString(odabranaKontaktiranaOsoba));
 
-                                        logger.info("Unesen je odabir kontaktirane osobe: " + Integer.toString(odabranaKontaktiranaOsoba));
+                                    odabraneKontaktiraneOsobe[j] = odabranaKontaktiranaOsoba;
 
-                                        odabraneKontaktiraneOsobe[j] = odabranaKontaktiranaOsoba;
-
-                                    }
 
                                 }
 
@@ -669,6 +681,12 @@ public class Glavna {
                                 System.out.println("Došlo je do pogreške kod unosa brojčane vrijednosti! Molimo ponovite unos.");
 
                                 input.nextLine();
+
+                                ispravanUnos = false;
+
+                            } catch (DuplikatKontaktiraneOsobe ex) {
+
+                                logger.error(ex.getMessage(), ex);
 
                                 ispravanUnos = false;
 
@@ -700,34 +718,21 @@ public class Glavna {
         }
     }
 
-    private static boolean provjeraDuplikataKontaktiranihOsoba(int odabranaKontaktiranaOsoba, int[] odabraneKontaktiraneOsobe) {
-        boolean ispravanUnos;
-        ispravanUnos = true;
+    private static void provjeraDuplikataKontaktiranihOsoba(int odabranaKontaktiranaOsoba, int[] odabraneKontaktiraneOsobe) throws DuplikatKontaktiraneOsobe {
 
         // (Provjera duplikata) Provjera postojanosti Odabrane Kontaktirane Osobe u prethodno Odabranim Kontaktiranim Osobama
 
-        try {
+        for (int k = 0; k < odabraneKontaktiraneOsobe.length; ++k) {
 
-            for (int k = 0; k < odabraneKontaktiraneOsobe.length; ++k) {
+            if (odabraneKontaktiraneOsobe[k] == odabranaKontaktiranaOsoba) {
 
-                if (odabraneKontaktiraneOsobe[k] == odabranaKontaktiranaOsoba) {
+                System.out.println("Osoba je već odabrana, molimo ponovno unesite!");
 
-                    System.out.println("Osoba je vec odabrana, molimo ponovno unesite!");
+                throw new DuplikatKontaktiraneOsobe("Prilikom unosa odabira kontaktirane osobe, unesena je prethodno odabrana osoba (duplikat): "
+                        + Integer.toString(odabranaKontaktiranaOsoba));
 
-                    ispravanUnos = false;
-
-                    throw new DuplikatKontaktiraneOsobe("Prilikom unosa odabira kontaktirane osobe, unesena je prethodno odabrana osoba (duplikat): "
-                            + Integer.toString(odabranaKontaktiranaOsoba));
-
-                }
             }
-
-        } catch (DuplikatKontaktiraneOsobe ex) {
-
-            logger.error(ex.getMessage(), ex);
-
         }
-        return ispravanUnos;
     }
 }
 
